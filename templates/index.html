@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Results Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .form-select, .btn-primary {
+            background-color: #1f1f1f;
+            color: #fff;
+            border: none;
+        }
+        .form-select:focus, .btn-primary:hover {
+            background-color: #333;
+        }
+        table {
+            background-color: #1f1f1f;
+            color: #fff;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #292929;
+        }
+        tr:nth-child(even) {
+            background-color: #222;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Election Results Dashboard</h1>
+        
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <form method="POST">
+                    <label for="polling_unit" class="form-label">Select Polling Unit:</label>
+                    <select name="polling_unit" class="form-select">
+                        <option value="" disabled selected>Select a polling unit</option>
+                        {% for unit in polling_units %}
+                            <option value="{{ unit }}" {% if selected_polling_unit == unit %}selected{% endif %}>{{ unit }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary mt-2 w-100">Get Polling Unit Results</button>
+                </form>
+            </div>
+            
+            <div class="col-md-4">
+                <form method="POST">
+                    <label for="lga" class="form-label">Select Local Government:</label>
+                    <select name="lga" class="form-select">
+                        <option value="" disabled selected>Select an LGA</option>
+                        {% for lga in lgas %}
+                            <option value="{{ lga[0] }}" {% if selected_lga == lga[0]|string %}selected{% endif %}>{{ lga[1] }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary mt-2 w-100">Get LGA Summed Results</button>
+                </form>
+            </div>
+            
+            <div class="col-md-4">
+                <form method="POST">
+                    <label for="ward" class="form-label">Select Ward:</label>
+                    <select name="ward" class="form-select">
+                        <option value="" disabled selected>Select a ward</option>
+                        {% for ward in wards %}
+                            <option value="{{ ward[0] }}" {% if selected_ward == ward[0]|string %}selected{% endif %}>{{ ward[1] }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary mt-2 w-100">Get Ward Summed Results</button>
+                </form>
+            </div>
+        </div>
+        
+        {% if selected_polling_unit or selected_lga or selected_ward %}
+            <h2 class="text-center mt-4">
+                {% if selected_polling_unit %}Results for Polling Unit: {{ selected_polling_unit }}{% endif %}
+                {% if selected_lga %}Summed Results for LGA{% endif %}
+                {% if selected_ward %}Summed Results for Ward{% endif %}
+            </h2>
+        {% endif %}
+        
+        {% if results %}
+            <div class="table-responsive">
+                <table class="table table-dark table-bordered mt-3">
+                    <thead>
+                        <tr>
+                            <th>Party</th>
+                            <th>Votes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in results %}
+                            <tr>
+                                <td>{{ row[0] }}</td>
+                                <td>{{ row[1] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% elif selected_polling_unit or selected_lga or selected_ward %}
+            <p class="text-center mt-3">No results found.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
